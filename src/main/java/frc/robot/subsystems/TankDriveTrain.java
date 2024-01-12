@@ -37,9 +37,17 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 /**
  * A drivetrain based on differential drive kinematics.
  */
-public class DriveTrain extends SubsystemBase {
+public class TankDriveTrain extends SubsystemBase {
 
-    private static DriveTrain instance = null;
+    private static final int kLeftSparkCANId = 9;
+    private static final int kLeftTalon1CANId = 4;
+    private static final int kLeftTalon2CANId = 6;
+
+    private static final int kRightSparkCANId = 8;
+    private static final int kRightTalon1CANId = 5;
+    private static final int kRightTalon2CANId = 7;
+
+    private static TankDriveTrain instance = null;
 
     public static final double kPositionConversionFactor = 1.0 / 3000.0;
     public static final double kTrackWidth = 0.6;
@@ -51,15 +59,15 @@ public class DriveTrain extends SubsystemBase {
             0.0);
 
     // The left motor group
-    private CANSparkMax leftSpark9;
-    private WPI_TalonSRX leftTalon4;
-    private WPI_TalonSRX leftTalon6;
+    private CANSparkMax leftSpark;
+    private WPI_TalonSRX leftTalon1;
+    private WPI_TalonSRX leftTalon2;
     private MotorControllerGroup leftMotorGroup;
 
     // The right motor group
-    private CANSparkMax rightSpark8;
-    private WPI_TalonSRX rightTalon5;
-    private WPI_TalonSRX rightTalon7;
+    private CANSparkMax rightSpark;
+    private WPI_TalonSRX rightTalon1;
+    private WPI_TalonSRX rightTalon2;
     private MotorControllerGroup rightMotorGroup;
 
     // The robot's drive controller
@@ -73,16 +81,15 @@ public class DriveTrain extends SubsystemBase {
     private final RelativeEncoder rightEncoder;
 
     NetworkTable drivetrain_table;
-    // private final DoubleEntry max_speed;
 
     /**
      * Get the instance of the drivetrain.
      * 
      * @return the instance of the drivetrain.
      */
-    public static DriveTrain getInstance() {
+    public static TankDriveTrain getInstance() {
         if (instance == null) {
-            instance = new DriveTrain();
+            instance = new TankDriveTrain();
         }
         return instance;
     }
@@ -90,18 +97,18 @@ public class DriveTrain extends SubsystemBase {
     /**
     * Create a new instance of the drivetrain.
     */
-    private DriveTrain() {
+    private TankDriveTrain() {
 
-        leftSpark9 = new CANSparkMax(9, CANSparkLowLevel.MotorType.kBrushless);
-        leftTalon4 = new WPI_TalonSRX(4);
-        leftTalon6 = new WPI_TalonSRX(6);
-        leftMotorGroup = new MotorControllerGroup(leftSpark9, leftTalon4, leftTalon6);
+        leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        leftTalon1 = new WPI_TalonSRX(kLeftTalon1CANId);
+        leftTalon2 = new WPI_TalonSRX(kLeftTalon2CANId);
+        leftMotorGroup = new MotorControllerGroup(leftSpark, leftTalon1, leftTalon2);
         addChild("Left Motor Group", leftMotorGroup);
 
-        rightSpark8 = new CANSparkMax(8, CANSparkLowLevel.MotorType.kBrushless);
-        rightTalon5 = new WPI_TalonSRX(5);
-        rightTalon7 = new WPI_TalonSRX(7);
-        rightMotorGroup = new MotorControllerGroup(rightSpark8, rightTalon5, rightTalon7);
+        rightSpark = new CANSparkMax(kRightSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        rightTalon1 = new WPI_TalonSRX(kRightTalon1CANId);
+        rightTalon2 = new WPI_TalonSRX(kRightTalon2CANId);
+        rightMotorGroup = new MotorControllerGroup(rightSpark, rightTalon1, rightTalon2);
         addChild("Right Motor Group", rightMotorGroup);
 
         differentialDrive1 = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
@@ -112,42 +119,42 @@ public class DriveTrain extends SubsystemBase {
         differentialDrive1.setMaxOutput(1.0);
 
         // The left configuration
-        leftSpark9.setIdleMode(idleMode);
-        leftSpark9.setInverted(true);
-        leftSpark9.burnFlash();
+        leftSpark.setIdleMode(idleMode);
+        leftSpark.setInverted(true);
+        leftSpark.burnFlash();
 
-        leftTalon4.set(ControlMode.PercentOutput, 0.0);
-        leftTalon4.configOpenloopRamp(0.2);
-        leftTalon4.setInverted(false);
+        leftTalon1.set(ControlMode.PercentOutput, 0.0);
+        leftTalon1.configOpenloopRamp(0.2);
+        leftTalon1.setInverted(false);
 
-        leftTalon6.set(ControlMode.PercentOutput, 0.0);
-        leftTalon6.configOpenloopRamp(0.2);
-        leftTalon6.setInverted(false);
+        leftTalon2.set(ControlMode.PercentOutput, 0.0);
+        leftTalon2.configOpenloopRamp(0.2);
+        leftTalon2.setInverted(false);
 
         // The right configuration
-        rightSpark8.setIdleMode(idleMode);
-        rightSpark8.setInverted(false);
-        rightSpark8.burnFlash();
+        rightSpark.setIdleMode(idleMode);
+        rightSpark.setInverted(false);
+        rightSpark.burnFlash();
 
-        rightTalon5.set(ControlMode.PercentOutput, 0.0);
-        rightTalon5.configOpenloopRamp(0.2);
-        rightTalon5.setInverted(true);
+        rightTalon1.set(ControlMode.PercentOutput, 0.0);
+        rightTalon1.configOpenloopRamp(0.2);
+        rightTalon1.setInverted(true);
 
-        rightTalon7.set(ControlMode.PercentOutput, 0.0);
-        rightTalon7.configOpenloopRamp(0.2);
-        rightTalon7.setInverted(true);
+        rightTalon2.set(ControlMode.PercentOutput, 0.0);
+        rightTalon2.configOpenloopRamp(0.2);
+        rightTalon2.setInverted(true);
 
         // Set the current limits
         SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
         current_limit.currentLimit = 30;
-        leftTalon4.configSupplyCurrentLimit(current_limit);
-        leftTalon6.configSupplyCurrentLimit(current_limit);
-        rightTalon5.configSupplyCurrentLimit(current_limit);
-        rightTalon7.configSupplyCurrentLimit(current_limit);
+        leftTalon1.configSupplyCurrentLimit(current_limit);
+        leftTalon2.configSupplyCurrentLimit(current_limit);
+        rightTalon1.configSupplyCurrentLimit(current_limit);
+        rightTalon2.configSupplyCurrentLimit(current_limit);
 
         // Set up the encoders
-        leftEncoder = leftSpark9.getEncoder();
-        rightEncoder = rightSpark8.getEncoder();
+        leftEncoder = leftSpark.getEncoder();
+        rightEncoder = rightSpark.getEncoder();
 
         // set the encorder speed conversion factor from native units to meters per
         // second.
