@@ -24,7 +24,6 @@ import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -39,6 +38,9 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
  * A drivetrain based on differential drive kinematics.
  */
 public class DriveTrain extends SubsystemBase {
+
+    private static DriveTrain instance = null;
+
     public static final double kPositionConversionFactor = 1.0 / 3000.0;
     public static final double kTrackWidth = 0.6;
     public static final CANSparkBase.IdleMode idleMode = CANSparkBase.IdleMode.kBrake;
@@ -63,18 +65,9 @@ public class DriveTrain extends SubsystemBase {
     // The robot's drive controller
     private DifferentialDrive differentialDrive1;
 
-    double accel_angle = 0.0;
-    double angle_filtered = 0.0;
-
     double m_distance = 0.0;
     double m_speed = 0.0;
     double m_speed_filtered = 0.0;
-
-    LinearFilter m_angle_filter;
-    LinearFilter m_speed_filter;
-
-    double afpc = 0.02;
-    double aftc = 0.2;
 
     private final RelativeEncoder leftEncoder;
     private final RelativeEncoder rightEncoder;
@@ -83,9 +76,21 @@ public class DriveTrain extends SubsystemBase {
     // private final DoubleEntry max_speed;
 
     /**
-    *
+     * Get the instance of the drivetrain.
+     * 
+     * @return the instance of the drivetrain.
+     */
+    public static DriveTrain getInstance() {
+        if (instance == null) {
+            instance = new DriveTrain();
+        }
+        return instance;
+    }
+
+    /**
+    * Create a new instance of the drivetrain.
     */
-    public DriveTrain() {
+    private DriveTrain() {
 
         leftSpark9 = new CANSparkMax(9, CANSparkLowLevel.MotorType.kBrushless);
         leftTalon4 = new WPI_TalonSRX(4);
@@ -157,66 +162,24 @@ public class DriveTrain extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
         drivetrain_table = inst.getTable("SmartDashboard").getSubTable("DriveTrain");
-
-        // Create persistant configuration options in network table.
-        aftc = drivetrain_table.getEntry("angle_filter_time_const").getNumber(0.2).doubleValue();
-        afpc = drivetrain_table.getEntry("angle_filter_period_const").getNumber(0.02).doubleValue();
-
-        drivetrain_table.getEntry("angle_filter_time_const").setNumber(aftc);
-        drivetrain_table.getEntry("angle_filter_period_const").setNumber(afpc);
-
-        drivetrain_table.getEntry("angle_filter_time_const").setPersistent();
-        drivetrain_table.getEntry("angle_filter_period_const").setPersistent();
-
-        m_angle_filter = LinearFilter.singlePoleIIR(aftc, afpc);
-        m_speed_filter = LinearFilter.singlePoleIIR(0.5, 0.02);
     }
 
+    /**
+     * This method will be called once per scheduler run
+     */
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-
-        checkNetworkTableChanges();
-
-        if (angle_filtered > 15)
-            angle_filtered = 15;
-        if (angle_filtered < -15)
-            angle_filtered = -15;
 
         m_distance = leftEncoder.getPosition();
         m_speed = leftEncoder.getVelocity();
 
         odometry.update(Rotation2d.fromDegrees(0.0), leftEncoder.getPosition(), rightEncoder.getPosition());
 
-        m_speed_filtered = m_speed_filter.calculate(m_speed);
-
         drivetrain_table.getEntry("distance").setDouble(m_distance);
         drivetrain_table.getEntry("speed").setDouble(m_speed);
-        drivetrain_table.getEntry("speed_filtered").setDouble(m_speed_filtered);
     }
 
-    /**
-     * TODO: Remove this method
-     * @return the m_distance
-     */
-    @Deprecated
-    private void checkNetworkTableChanges() {
-        // Check for a change in the angle filter values
-        double new_tc = drivetrain_table.getEntry("angle_filter_time_const").getNumber(0.2).doubleValue();
-        double new_pc = drivetrain_table.getEntry("angle_filter_period_const").getNumber(0.02).doubleValue();
-        if (new_tc != aftc || new_pc != afpc) {
-            aftc = new_tc;
-            afpc = new_pc;
-            m_angle_filter = LinearFilter.singlePoleIIR(aftc, afpc);
-            System.out.printf("Updating angle filter values. time=%.3f period=%.3f \n", aftc, afpc);
-        }
-
-        angle_filtered = m_angle_filter.calculate(accel_angle);
-
-        drivetrain_table.getEntry("angle_filtered").setDouble(angle_filtered);
-        drivetrain_table.getEntry("speed_filtered").setDouble(m_speed_filtered);
-
-    }
 
     @Override
     public void simulationPeriodic() {
