@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Lightshow;
+import frc.robot.subsystems.TankDriveTrain;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,15 +30,25 @@ public class RobotContainer {
 
   // This is a link to the lightshow subsystem
   private final Lightshow m_lightshow;
+  private final TankDriveTrain m_tankDriveTrain;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
+
+    /*
+     * Initialize Subsystems
+     */
 
     // Get the lightshow subsystem
     m_lightshow = Lightshow.getInstance();
-    
+
+    // Get the drivetrain subsystem
+    m_tankDriveTrain = TankDriveTrain.getInstance();
+
+    /*
+     * Configure the button bindings and commands
+     */
+    configureBindings();
   }
 
   /**
