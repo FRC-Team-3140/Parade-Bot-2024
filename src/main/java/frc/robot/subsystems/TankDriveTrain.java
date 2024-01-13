@@ -71,7 +71,7 @@ public class TankDriveTrain extends SubsystemBase {
     private MotorControllerGroup rightMotorGroup;
 
     // The robot's drive controller
-    private DifferentialDrive differentialDrive1;
+    private DifferentialDrive differentialDriveControl;
 
     double m_distance = 0.0;
     double m_speed = 0.0;
@@ -111,12 +111,12 @@ public class TankDriveTrain extends SubsystemBase {
         rightMotorGroup = new MotorControllerGroup(rightSpark, rightTalon1, rightTalon2);
         addChild("Right Motor Group", rightMotorGroup);
 
-        differentialDrive1 = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
-        addChild("Differential Drive 1", differentialDrive1);
+        differentialDriveControl = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
+        addChild("Differential Drive 1", differentialDriveControl);
 
-        differentialDrive1.setSafetyEnabled(true);
-        differentialDrive1.setExpiration(0.1);
-        differentialDrive1.setMaxOutput(1.0);
+        differentialDriveControl.setSafetyEnabled(true);
+        differentialDriveControl.setExpiration(0.1);
+        differentialDriveControl.setMaxOutput(1.0);
 
         // The left configuration
         leftSpark.setIdleMode(idleMode);
@@ -185,6 +185,10 @@ public class TankDriveTrain extends SubsystemBase {
 
         drivetrain_table.getEntry("distance").setDouble(m_distance);
         drivetrain_table.getEntry("speed").setDouble(m_speed);
+
+        // feed the safety watchdog manually - This may be unsafe.
+        // differentialDriveControl.feed();
+
     }
 
 
@@ -198,11 +202,15 @@ public class TankDriveTrain extends SubsystemBase {
         drivetrain_table.getEntry("arcade_xspeed").setNumber(xSpeed);
         drivetrain_table.getEntry("arcade_zrotation").setNumber(zRotation);
 
-        differentialDrive1.arcadeDrive(xSpeed, zRotation);
+        differentialDriveControl.arcadeDrive(xSpeed, zRotation);
     }
 
     public void curveDrive(double xSpeed,double zRotation){
-        differentialDrive1.curvatureDrive(xSpeed , zRotation, false);
+        differentialDriveControl.curvatureDrive(xSpeed , zRotation, false);
+    }
+
+    public void tankDrive(double leftSpeed, double rightSpeed){
+        differentialDriveControl.tankDrive(leftSpeed, rightSpeed);
     }
 
     public double getSpeedFiltered() {
