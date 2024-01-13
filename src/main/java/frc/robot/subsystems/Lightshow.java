@@ -42,6 +42,13 @@ public class Lightshow extends SubsystemBase {
     public static final int kModeAdmirals = 10;
     public static final int kModeSparkleWhite = 11;
     public static final int kModeSparkleUSA = 12;
+    public static final int kModeBlueRotate = 13    ;
+    public static final int kModeRedRotate = 14;
+     public static final int kModeGreenRotate = 15;
+    public static final int kModePurpleRotate = 16;
+    public static final int kModeBrownRotate = 17;
+
+
 
     int mode = kModeCaution;
 
@@ -143,6 +150,21 @@ public class Lightshow extends SubsystemBase {
         if (mode == kModeError) {
             error();
         }
+        if (mode == kModeRedRotate) {
+            redRotate();
+        }
+        if (mode == kModeGreenRotate) {
+            greenRotate();
+        }
+        if (mode == kModeBlueRotate) {
+            blueRotate();
+        }
+        if (mode == kModePurpleRotate) {
+            purpleRotate();
+        }
+        if (mode == kModeBrownRotate) {
+            brownRotate();
+        }
         // if (light_number == 7) {
         // led_data.setRGB(light_number, 0, 255, 0);
         // } else {
@@ -160,6 +182,53 @@ public class Lightshow extends SubsystemBase {
             double wave = Math.cos(5.0 * timestamp + 1.0 * i);
             double val = Math.max(0, wave);
             led_data.setRGB(i, (int) (255 * val), (int) (100 * val), 0);
+
+        }
+    }
+    private void redRotate() {
+        double timestamp = System.currentTimeMillis() / 1000.0;
+        for (int i = 0; i < light_count; i++) {
+            double wave = Math.cos(5.0 * timestamp + 1.0 * i);
+            double val = Math.max(0, wave);
+            led_data.setRGB(i, (int) (255 * val), (int) (0 * val),  (int) (0 * val));
+
+        }
+    }
+    private void greenRotate() {
+        double timestamp = System.currentTimeMillis() / 1000.0;
+        for (int i = 0; i < light_count; i++) {
+            double wave = Math.cos(5.0 * timestamp + 1.0 * i);
+            double val = Math.max(0, wave);
+            led_data.setRGB(i, (int) (0 * val), (int) (255 * val),  (int) (0 * val));
+
+        }
+    }
+   private void blueRotate() {
+        double timestamp = System.currentTimeMillis() / 1000.0;
+        for (int i = 0; i < light_count; i++) {
+            double wave = Math.cos(5.0 * timestamp + 1.0 * i);
+            double val = Math.max(0, wave);
+            led_data.setRGB(i, (int) (0 * val), (int) (0 * val),  (int) (255 * val));
+
+        }
+    }
+
+   private void purpleRotate() {
+        double timestamp = System.currentTimeMillis() / 1000.0;
+        for (int i = 0; i < light_count; i++) {
+            double wave = Math.cos(5.0 * timestamp + 1.0 * i);
+            double val = Math.max(0, wave);
+            led_data.setRGB(i, (int) (128 * val), (int) (0 * val),  (int) (255 * val));
+
+        }
+    }
+
+   private void brownRotate() {
+        double timestamp = System.currentTimeMillis() / 1000.0;
+        for (int i = 0; i < light_count; i++) {
+            double wave = Math.cos(5.0 * timestamp + 1.0 * i);
+            double val = Math.max(0, wave);
+            led_data.setRGB(i, (int) (75 * val), (int) (32 * val),  (int) (3 * val));
 
         }
     }

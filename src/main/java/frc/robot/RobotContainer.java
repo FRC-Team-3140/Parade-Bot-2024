@@ -126,17 +126,20 @@ public class RobotContainer {
     System.out.printf("Setting drive type to: %s",type);
     if (type == kArcadeDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.k);;
+      m_lightshow.setMode(Lightshow.kModeBlueRotate);;
     }
     else if (type == kBoostDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
+      m_lightshow.setMode(Lightshow.kModeBlueRotate);;
     }
     else if (type == kCurveDrive) {
       m_tankDriveTrain.setDefaultCommand(m_curveDrive);
+      m_lightshow.setMode(Lightshow.kModeBrownRotate);;
     }
     else{
       System.out.println("*** WARNING *** Unrecognized drive type. Setting to default.");
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
+      m_lightshow.setMode(Lightshow.kModeError);;
     }
     m_tankDriveTrain.getDefaultCommand().schedule();
 
