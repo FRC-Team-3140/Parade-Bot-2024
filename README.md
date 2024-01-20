@@ -1,6 +1,9 @@
 
 
+# Drive instructions
 
+ * back button: change drivetrain control mode.  Boost or Curve
+ 
 # Installing Libraries
 
 CTRE - This requires two packages for Phoenex 6 and 5.  Install 6 first.
