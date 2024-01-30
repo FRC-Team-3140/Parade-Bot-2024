@@ -5,13 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.BoostDrive;
-import frc.robot.commands.ChangeDriveType;
 import frc.robot.commands.CurveDrive;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.autos.DriveTimed;
+import frc.robot.commands.autos.TurnTimed;
 import frc.robot.subsystems.Lightshow;
-import frc.robot.subsystems.TankDriveTrain;
+import frc.robot.subsystems.NavXSubsystem;
+import frc.robot.subsystems.DifferentialDriveSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -39,13 +41,19 @@ public class RobotContainer {
   private BoostDrive m_boostDrive;
   private CurveDrive m_curveDrive;
 
+  // The robot's subsystems and commands are defined here...
+
+    private final SendableChooser<Command> chooser = new SendableChooser<>();
+
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
 
   // This is a link to the lightshow subsystem
   private final Lightshow m_lightshow;
-  private final TankDriveTrain m_tankDriveTrain;
+  private final DifferentialDriveSubsystem m_tankDriveTrain;
+  private final NavXSubsystem m_navXSubsystem;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -60,12 +68,21 @@ public class RobotContainer {
     m_lightshow = Lightshow.getInstance();
 
     // Get the drivetrain subsystem
-    m_tankDriveTrain = TankDriveTrain.getInstance();
+    m_tankDriveTrain = DifferentialDriveSubsystem.getInstance();
+
+    // Get the NavX subsystem
+    m_navXSubsystem = NavXSubsystem.getInstance();
 
     /*
      * Configure the button bindings and commands
      */
     configureBindings();
+
+    // Add commands to the autonomous command chooser
+    chooser.setDefaultOption("Back Out Of Zone", new DriveTimed(m_tankDriveTrain, -0.75, 1.5));
+    chooser.addOption("Rotate Left Approx 90", new TurnTimed(m_tankDriveTrain, 0.5, 0.95));
+ // Put the chooser on the dashboard
+        SmartDashboard.putData("Auto mode", chooser);
   }
 
   /**
@@ -106,11 +123,7 @@ public class RobotContainer {
 
     setDriveType(kDefaultDriveType);
 
-
-
     new Trigger(m_driverController.back()).onTrue(Commands.runOnce(this::toggleDriveType));
-
-
   }
 
   public void toggleDriveType(){
@@ -151,7 +164,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null; // Autos.exampleAuto(m_exampleSubsystem);
+    // An ExampleCommand will run in autonomous
+    return chooser.getSelected();
   }
 }

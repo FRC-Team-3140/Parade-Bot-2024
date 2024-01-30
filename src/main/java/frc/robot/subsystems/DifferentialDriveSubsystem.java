@@ -12,32 +12,28 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase;
-
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 /**
  * A drivetrain based on differential drive kinematics.
  */
-public class TankDriveTrain extends SubsystemBase {
+public class DifferentialDriveSubsystem extends SubsystemBase {
 
     private static final int kLeftSparkCANId = 9;
     private static final int kLeftTalon1CANId = 4;
@@ -47,15 +43,21 @@ public class TankDriveTrain extends SubsystemBase {
     private static final int kRightTalon1CANId = 5;
     private static final int kRightTalon2CANId = 7;
 
-    private static TankDriveTrain instance = null;
+    private static DifferentialDriveSubsystem instance = null;
 
-    public static final double kPositionConversionFactor = 1.0 / 3000.0;
+    public static final double kPositionConversionFactor = 3.0/79.0; // estimated over a 3 meter test
     public static final double kTrackWidth = 0.6;
+    // Calibarating track width by wheel distance for 360
+    //  left    right
+    // 1.673  -1.989
+    //  1.603   -2.652
+    // 1.604   -2.062
+    // 1.991   -2.215
+
     public static final CANSparkBase.IdleMode idleMode = CANSparkBase.IdleMode.kBrake;
 
-
     final private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.6);
-    final private DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0.0), 0.0,
+    final private DifferentialDriveOdometry master_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0.0), 0.0,
             0.0);
 
     // The left motor group
@@ -87,17 +89,17 @@ public class TankDriveTrain extends SubsystemBase {
      * 
      * @return the instance of the drivetrain.
      */
-    public static TankDriveTrain getInstance() {
+    public static DifferentialDriveSubsystem getInstance() {
         if (instance == null) {
-            instance = new TankDriveTrain();
+            instance = new DifferentialDriveSubsystem();
         }
         return instance;
     }
 
     /**
-    * Create a new instance of the drivetrain.
-    */
-    private TankDriveTrain() {
+     * Create a new instance of the drivetrain.
+     */
+    private DifferentialDriveSubsystem() {
 
         leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
         leftTalon1 = new WPI_TalonSRX(kLeftTalon1CANId);
@@ -172,25 +174,50 @@ public class TankDriveTrain extends SubsystemBase {
     }
 
     /**
-     * This method will be called once per scheduler run
+     * This method is called once per scheduler run to update the robot's odometry
+     * and publish the current speed and distance to a NetworkTable.
+     * 
+     * It calculates the average distance and speed from the left and right
+     * encoders,
+     * updates the odometry with the current heading and distances,
+     * and publishes the speed and distance to the "drivetrain" NetworkTable.
      */
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        // Get the current position from each encoder
+        double leftDistance = leftEncoder.getPosition();
+        double rightDistance = rightEncoder.getPosition();
 
-        m_distance = leftEncoder.getPosition();
-        m_speed = leftEncoder.getVelocity();
+        // Calculate the average distance
+        m_distance = (leftDistance + rightDistance) / 2;
 
-        odometry.update(Rotation2d.fromDegrees(0.0), leftEncoder.getPosition(), rightEncoder.getPosition());
+        // Get the current speed from each encoder
+        double leftSpeed = leftEncoder.getVelocity();
+        double rightSpeed = rightEncoder.getVelocity();
 
+        // Calculate the average speed
+        m_speed = (leftSpeed + rightSpeed) / 2;
+
+        // Update the odometry
+        Rotation2d gyroAngle = Rotation2d.fromDegrees(0.0); // Replace with actual gyro angle
+        master_odometry.update(gyroAngle, leftDistance, rightDistance);
+
+        // Publish the current speed and distance to the "drivetrain" NetworkTable
         drivetrain_table.getEntry("distance").setDouble(m_distance);
         drivetrain_table.getEntry("speed").setDouble(m_speed);
 
-        // feed the safety watchdog manually - This may be unsafe.
+        //send the encoder counts to the network table
+        drivetrain_table.getEntry("leftEncoderPosition").setDouble(leftEncoder.getPosition());
+        drivetrain_table.getEntry("rightEncoderPosition").setDouble(rightEncoder.getPosition());
+
+        // send the odometry pose to the network table
+        drivetrain_table.getEntry("x").setDouble(master_odometry.getPoseMeters().getX());
+        drivetrain_table.getEntry("y").setDouble(master_odometry.getPoseMeters().getY());
+        drivetrain_table.getEntry("heading").setDouble(master_odometry.getPoseMeters().getRotation().getDegrees());
+
+        // The following line feeds the safety watchdog manually, which may be unsafe
         // differentialDriveControl.feed();
-
     }
-
 
     @Override
     public void simulationPeriodic() {
@@ -198,19 +225,38 @@ public class TankDriveTrain extends SubsystemBase {
 
     }
 
+    /**
+     * Drives the robot using arcade drive control scheme.
+     * @param xSpeed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.
+     * @param zRotation The robot's rotation rate around the Z axis [-1.0..1.0]. Clockwise is positive.
+     */
     public void arcadeDrive(double xSpeed, double zRotation) {
-        drivetrain_table.getEntry("arcade_xspeed").setNumber(xSpeed);
-        drivetrain_table.getEntry("arcade_zrotation").setNumber(zRotation);
-
         differentialDriveControl.arcadeDrive(xSpeed, zRotation);
     }
 
-    public void curveDrive(double xSpeed,double zRotation){
-        differentialDriveControl.curvatureDrive(xSpeed , zRotation, false);
+    /**
+     * Drives the robot using curvature drive control scheme.
+     * @param xSpeed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.
+     * @param zRotation The robot's rotation rate around the Z axis [-1.0..1.0]. Clockwise is positive.
+     */
+    public void curveDrive(double xSpeed, double zRotation) {
+        differentialDriveControl.curvatureDrive(xSpeed, zRotation, false);
     }
 
-    public void tankDrive(double leftSpeed, double rightSpeed){
+    /**
+     * Drives the robot using tank drive control scheme.
+     * @param leftSpeed The robot's left side speed along the X axis [-1.0..1.0]. Forward is positive.
+     * @param rightSpeed The robot's right side speed along the X axis [-1.0..1.0]. Forward is positive.
+     */
+    public void tankDrive(double leftSpeed, double rightSpeed) {
         differentialDriveControl.tankDrive(leftSpeed, rightSpeed);
+    }
+
+    /**
+     * Stops the robot by stopping the DifferentialDrive.
+     */
+    public void stopMotor() {
+        differentialDriveControl.stopMotor();
     }
 
     public double getSpeedFiltered() {
@@ -224,8 +270,15 @@ public class TankDriveTrain extends SubsystemBase {
     public double getPosition() {
         return m_distance;
     }
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
+
+    /**
+     * Get the current pose of the robot.
+     *
+     * @return The pose of the robot in meters.
+     */
+    public Pose2d getPose() {
+        return master_odometry.getPoseMeters();
+    }
 
     /**
      * Reset the drive encoders to currently read a position of 0.
@@ -233,30 +286,6 @@ public class TankDriveTrain extends SubsystemBase {
     public void resetEncoders() {
         leftEncoder.setPosition(0.0);
         rightEncoder.setPosition(0.0);
-    }
-
-    /**
-     * Get the current pose of the robot using odometry.
-     */
-    public Pose2d getPose() {
-        return odometry.getPoseMeters();
-    }
-
-    /**
-     * Reset the odometry to the specified pose.
-     * 
-     * @param pose
-     */
-    public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(Rotation2d.fromDegrees(0.0), leftEncoder.getPosition(),
-                rightEncoder.getPosition(), pose);
-    }
-
-    /**
-     * Reset the odometry to zero.
-     */
-    public void resetOdometry() {
-        resetOdometry(new Pose2d());
     }
 
 }

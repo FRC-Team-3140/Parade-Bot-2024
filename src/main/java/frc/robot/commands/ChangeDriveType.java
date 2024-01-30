@@ -4,13 +4,13 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.TankDriveTrain;
+import frc.robot.subsystems.DifferentialDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
 public class ChangeDriveType extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final TankDriveTrain m_drivetrain;
+  private final DifferentialDriveSubsystem m_drivetrain;
 
   Command m_type1;
   Command m_type2;
@@ -20,7 +20,7 @@ public class ChangeDriveType extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ChangeDriveType(TankDriveTrain subsystem,Command type1, Command type2) {
+  public ChangeDriveType(DifferentialDriveSubsystem subsystem,Command type1, Command type2) {
     m_drivetrain = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);

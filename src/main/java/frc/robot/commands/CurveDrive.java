@@ -4,12 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.TankDriveTrain;
+import frc.robot.subsystems.DifferentialDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
 public class CurveDrive extends Command {
-  private final TankDriveTrain m_drivetrain;
+  private final DifferentialDriveSubsystem m_drivetrain;
   private final Supplier<Double> m_xaxisSpeedSupplier;
   private final Supplier<Double> m_zaxisRotateSupplier;
   private final Supplier<Double> m_boostAxisSupplier;
@@ -31,7 +31,7 @@ public class CurveDrive extends Command {
    * @param zaxisRotateSupplier Lambda supplier of rotational speed
    */
   public CurveDrive(
-      TankDriveTrain drivetrain,
+      DifferentialDriveSubsystem drivetrain,
       Supplier<Double> xaxisSpeedSupplier,
       Supplier<Double> zaxisRotateSupplier,
       Supplier<Double> boostAxisSupplier,
