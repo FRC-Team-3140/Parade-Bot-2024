@@ -6,6 +6,8 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.BoostDrive;
+import frc.robot.commands.ClimbDown;
+import frc.robot.commands.ClimbUp;
 import frc.robot.commands.CurveDrive;
 import frc.robot.commands.autos.DriveTimed;
 import frc.robot.commands.autos.TurnTimed;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -54,7 +57,9 @@ public class RobotContainer {
   private final Lightshow m_lightshow;
   private final DifferentialDriveSubsystem m_tankDriveTrain;
   private final NavXSubsystem m_navXSubsystem;
-
+  
+  private final ClimbUp m_climbUp;
+  private final ClimbDown m_climbDown;
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -63,7 +68,7 @@ public class RobotContainer {
     /*
      * Initialize Subsystems
      */
-
+   
     // Get the lightshow subsystem
     m_lightshow = Lightshow.getInstance();
 
@@ -73,6 +78,8 @@ public class RobotContainer {
     // Get the NavX subsystem
     m_navXSubsystem = NavXSubsystem.getInstance();
 
+    m_climbUp = new ClimbUp();
+    m_climbDown = new ClimbDown ();
     /*
      * Configure the button bindings and commands
      */
@@ -124,6 +131,10 @@ public class RobotContainer {
     setDriveType(kDefaultDriveType);
 
     new Trigger(m_driverController.back()).onTrue(Commands.runOnce(this::toggleDriveType));
+
+    new Trigger(m_driverController.a()).whileTrue(m_climbUp);
+    new Trigger(m_driverController.b()).whileTrue(m_climbDown);
+        // Assuming m_driverController is a Joystick or XboxController object
   }
 
   public void toggleDriveType(){
