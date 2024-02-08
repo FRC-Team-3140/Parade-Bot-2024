@@ -35,11 +35,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class DifferentialDriveSubsystem extends SubsystemBase {
 
-    private static final int kLeftSparkCANId = 9;
+    //private static final int kLeftSparkCANId = 9;
     private static final int kLeftTalon1CANId = 4;
     private static final int kLeftTalon2CANId = 6;
 
-    private static final int kRightSparkCANId = 8;
+    //private static final int kRightSparkCANId = 8;
     private static final int kRightTalon1CANId = 5;
     private static final int kRightTalon2CANId = 7;
 
@@ -101,16 +101,16 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
      */
     private DifferentialDriveSubsystem() {
 
-        leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        //leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
         leftTalon1 = new WPI_TalonSRX(kLeftTalon1CANId);
         leftTalon2 = new WPI_TalonSRX(kLeftTalon2CANId);
-        leftMotorGroup = new MotorControllerGroup(leftSpark, leftTalon1, leftTalon2);
+        leftMotorGroup = new MotorControllerGroup(leftTalon1, leftTalon2);
         addChild("Left Motor Group", leftMotorGroup);
 
-        rightSpark = new CANSparkMax(kRightSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        //rightSpark = new CANSparkMax(kRightSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
         rightTalon1 = new WPI_TalonSRX(kRightTalon1CANId);
         rightTalon2 = new WPI_TalonSRX(kRightTalon2CANId);
-        rightMotorGroup = new MotorControllerGroup(rightSpark, rightTalon1, rightTalon2);
+        rightMotorGroup = new MotorControllerGroup( rightTalon1, rightTalon2);
         addChild("Right Motor Group", rightMotorGroup);
 
         differentialDriveControl = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
