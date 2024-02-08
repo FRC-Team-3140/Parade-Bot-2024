@@ -19,7 +19,7 @@ public class ClimbUp extends Command  {
     @Override
     public void execute() {
         // Code to run every time the scheduler runs while the command is scheduled
-        climber.climb(1.0); // Replace 1.0 with your desired climb speed
+        climber.climb(1.0,1.0); // Replace 1.0 with your desired climb speed
     }
 
     @Override

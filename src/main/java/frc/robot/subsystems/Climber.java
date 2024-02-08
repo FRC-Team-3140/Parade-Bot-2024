@@ -31,10 +31,12 @@ public class Climber extends SubsystemBase {
         return instance;
     }
 
-    public void climb(double speed) {
-        m_leftClimber.set(speed);
-        m_rightClimber.set(speed);
+    
+    public void climb(double leftVoltage, double rightVoltage) {
+        m_leftClimber.setVoltage(leftVoltage);
+        m_rightClimber.setVoltage(rightVoltage);
     }
+
 
     public void stop() {
         m_leftClimber.stopMotor();

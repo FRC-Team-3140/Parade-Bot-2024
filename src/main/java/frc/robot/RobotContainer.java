@@ -7,7 +7,11 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.BoostDrive;
 import frc.robot.commands.ClimbDown;
+import frc.robot.commands.ClimbDownLeft;
+import frc.robot.commands.ClimbDownRight;
 import frc.robot.commands.ClimbUp;
+import frc.robot.commands.ClimbUpLeft;
+import frc.robot.commands.ClimbUpRight;
 import frc.robot.commands.CurveDrive;
 import frc.robot.commands.autos.DriveTimed;
 import frc.robot.commands.autos.TurnTimed;
@@ -19,7 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -58,6 +61,10 @@ public class RobotContainer {
   private final DifferentialDriveSubsystem m_tankDriveTrain;
   private final NavXSubsystem m_navXSubsystem;
   
+  private final ClimbUpLeft m_climbUpLeft;
+  private final ClimbDownLeft m_climbDownLeft;
+  private final ClimbUpRight m_climbUpRight;
+  private final ClimbDownRight m_climbDownRight;
   private final ClimbUp m_climbUp;
   private final ClimbDown m_climbDown;
   /**
@@ -78,8 +85,12 @@ public class RobotContainer {
     // Get the NavX subsystem
     m_navXSubsystem = NavXSubsystem.getInstance();
 
+    m_climbUpLeft = new ClimbUpLeft();
+    m_climbDownLeft = new ClimbDownLeft();
+    m_climbUpRight = new ClimbUpRight();
+    m_climbDownRight = new ClimbDownRight();
     m_climbUp = new ClimbUp();
-    m_climbDown = new ClimbDown ();
+    m_climbDown = new ClimbDown();
     /*
      * Configure the button bindings and commands
      */
@@ -132,9 +143,13 @@ public class RobotContainer {
 
     new Trigger(m_driverController.back()).onTrue(Commands.runOnce(this::toggleDriveType));
 
-    new Trigger(m_driverController.a()).whileTrue(m_climbUp);
-    new Trigger(m_driverController.b()).whileTrue(m_climbDown);
-        // Assuming m_driverController is a Joystick or XboxController object
+    new Trigger(m_driverController.y()).whileTrue(m_climbUpRight);
+    new Trigger(m_driverController.x()).whileTrue(m_climbUpLeft);
+    new Trigger(m_driverController.b()).whileTrue(m_climbDownRight);
+    new Trigger(m_driverController.a()).whileTrue(m_climbDownLeft);
+    new Trigger(m_driverController.povDown()).whileTrue(m_climbDown);
+    new Trigger(m_driverController.povUp()).whileTrue(m_climbUp);
+    // Assuming m_driverController is a Joystick or XboxController object
   }
 
   public void toggleDriveType(){

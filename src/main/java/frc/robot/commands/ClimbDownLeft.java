@@ -2,10 +2,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
- public class ClimbDown extends Command  {
+ public class ClimbDownLeft extends Command  {
     private final Climber climber;
 
-    public ClimbDown() {
+    public ClimbDownLeft() {
         climber = Climber.getInstance();
         addRequirements(climber); // This command requires the Climber subsystem
     }
@@ -18,7 +18,7 @@ import frc.robot.subsystems.Climber;
     @Override
     public void execute() {
         // Code to run every time the scheduler runs while the command is scheduled
-        climber.climb(-1.0,-1.0); // Replace 1.0 with your desired climb speed
+        climber.climb(-1.0,0.0); // Replace 1.0 with your desired climb speed
     }
 
     @Override
