@@ -15,7 +15,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
+import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,11 +35,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class DifferentialDriveSubsystem extends SubsystemBase {
 
-    //private static final int kLeftSparkCANId = 9;
+    private static final int kLeftSparkCANId = 9;
     private static final int kLeftTalon1CANId = 4;
     private static final int kLeftTalon2CANId = 6;
 
-    //private static final int kRightSparkCANId = 8;
+    private static final int kRightSparkCANId = 8;
     private static final int kRightTalon1CANId = 5;
     private static final int kRightTalon2CANId = 7;
 
@@ -52,17 +54,20 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
     // 1.604   -2.062
     // 1.991   -2.215
 
+    public static final CANSparkBase.IdleMode idleMode = CANSparkBase.IdleMode.kBrake;
 
     final private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.6);
     final private DifferentialDriveOdometry master_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0.0), 0.0,
             0.0);
 
     // The left motor group
+    private CANSparkMax leftSpark;
     private WPI_TalonSRX leftTalon1;
     private WPI_TalonSRX leftTalon2;
     private MotorControllerGroup leftMotorGroup;
 
     // The right motor group
+    private CANSparkMax rightSpark;
     private WPI_TalonSRX rightTalon1;
     private WPI_TalonSRX rightTalon2;
     private MotorControllerGroup rightMotorGroup;
@@ -74,7 +79,9 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
     double m_speed = 0.0;
     double m_speed_filtered = 0.0;
 
-  
+    private final RelativeEncoder leftEncoder;
+    private final RelativeEncoder rightEncoder;
+
     NetworkTable drivetrain_table;
 
     /**
@@ -94,16 +101,16 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
      */
     private DifferentialDriveSubsystem() {
 
-        //leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        leftSpark = new CANSparkMax(kLeftSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
         leftTalon1 = new WPI_TalonSRX(kLeftTalon1CANId);
         leftTalon2 = new WPI_TalonSRX(kLeftTalon2CANId);
-        leftMotorGroup = new MotorControllerGroup(leftTalon1, leftTalon2);
+        leftMotorGroup = new MotorControllerGroup(leftSpark, leftTalon1, leftTalon2);
         addChild("Left Motor Group", leftMotorGroup);
 
-        //rightSpark = new CANSparkMax(kRightSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
+        rightSpark = new CANSparkMax(kRightSparkCANId, CANSparkLowLevel.MotorType.kBrushless);
         rightTalon1 = new WPI_TalonSRX(kRightTalon1CANId);
         rightTalon2 = new WPI_TalonSRX(kRightTalon2CANId);
-        rightMotorGroup = new MotorControllerGroup( rightTalon1, rightTalon2);
+        rightMotorGroup = new MotorControllerGroup(rightSpark, rightTalon1, rightTalon2);
         addChild("Right Motor Group", rightMotorGroup);
 
         differentialDriveControl = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
@@ -114,7 +121,10 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
         differentialDriveControl.setMaxOutput(1.0);
 
         // The left configuration
-     
+        leftSpark.setIdleMode(idleMode);
+        leftSpark.setInverted(true);
+        leftSpark.burnFlash();
+
         leftTalon1.set(ControlMode.PercentOutput, 0.0);
         leftTalon1.configOpenloopRamp(0.2);
         leftTalon1.setInverted(false);
@@ -124,7 +134,10 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
         leftTalon2.setInverted(false);
 
         // The right configuration
-   
+        rightSpark.setIdleMode(idleMode);
+        rightSpark.setInverted(false);
+        rightSpark.burnFlash();
+
         rightTalon1.set(ControlMode.PercentOutput, 0.0);
         rightTalon1.configOpenloopRamp(0.2);
         rightTalon1.setInverted(true);
@@ -141,8 +154,19 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
         rightTalon1.configSupplyCurrentLimit(current_limit);
         rightTalon2.configSupplyCurrentLimit(current_limit);
 
-     
-    
+        // Set up the encoders
+        leftEncoder = leftSpark.getEncoder();
+        rightEncoder = rightSpark.getEncoder();
+
+        // set the encorder speed conversion factor from native units to meters per
+        // second.
+        leftEncoder.setVelocityConversionFactor(kPositionConversionFactor);
+        rightEncoder.setVelocityConversionFactor(kPositionConversionFactor);
+
+        // set the encorder position conversion factor from native units to meters.
+        leftEncoder.setPositionConversionFactor(kPositionConversionFactor);
+        rightEncoder.setPositionConversionFactor(kPositionConversionFactor);
+
         // TODO: Switch network tables to Comms3140
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -161,18 +185,31 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Get the current position from each encoder
-   
+        double leftDistance = leftEncoder.getPosition();
+        double rightDistance = rightEncoder.getPosition();
+
         // Calculate the average distance
-     
+        m_distance = (leftDistance + rightDistance) / 2;
+
+        // Get the current speed from each encoder
+        double leftSpeed = leftEncoder.getVelocity();
+        double rightSpeed = rightEncoder.getVelocity();
+
+        // Calculate the average speed
+        m_speed = (leftSpeed + rightSpeed) / 2;
+
         // Update the odometry
         Rotation2d gyroAngle = Rotation2d.fromDegrees(0.0); // Replace with actual gyro angle
-       
+        master_odometry.update(gyroAngle, leftDistance, rightDistance);
+
         // Publish the current speed and distance to the "drivetrain" NetworkTable
         drivetrain_table.getEntry("distance").setDouble(m_distance);
         drivetrain_table.getEntry("speed").setDouble(m_speed);
 
         //send the encoder counts to the network table
-     
+        drivetrain_table.getEntry("leftEncoderPosition").setDouble(leftEncoder.getPosition());
+        drivetrain_table.getEntry("rightEncoderPosition").setDouble(rightEncoder.getPosition());
+
         // send the odometry pose to the network table
         drivetrain_table.getEntry("x").setDouble(master_odometry.getPoseMeters().getX());
         drivetrain_table.getEntry("y").setDouble(master_odometry.getPoseMeters().getY());
@@ -247,6 +284,8 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
      * Reset the drive encoders to currently read a position of 0.
      */
     public void resetEncoders() {
-       }
+        leftEncoder.setPosition(0.0);
+        rightEncoder.setPosition(0.0);
+    }
 
 }

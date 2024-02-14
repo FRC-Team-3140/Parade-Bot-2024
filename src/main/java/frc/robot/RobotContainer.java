@@ -49,8 +49,9 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
 
-    private final SendableChooser<Command> chooser = new SendableChooser<>();
+  private final SendableChooser<Command> chooser = new SendableChooser<>();
 
+  private final boolean kClimberEnabled = false;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
@@ -60,13 +61,14 @@ public class RobotContainer {
   private final Lightshow m_lightshow;
   private final DifferentialDriveSubsystem m_tankDriveTrain;
   private final NavXSubsystem m_navXSubsystem;
-  
-  private final ClimbUpLeft m_climbUpLeft;
-  private final ClimbDownLeft m_climbDownLeft;
-  private final ClimbUpRight m_climbUpRight;
-  private final ClimbDownRight m_climbDownRight;
-  private final ClimbUp m_climbUp;
-  private final ClimbDown m_climbDown;
+
+  private ClimbUpLeft m_climbUpLeft;
+  private ClimbDownLeft m_climbDownLeft;
+  private ClimbUpRight m_climbUpRight;
+  private ClimbDownRight m_climbDownRight;
+  private ClimbUp m_climbUp;
+  private ClimbDown m_climbDown;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -75,7 +77,7 @@ public class RobotContainer {
     /*
      * Initialize Subsystems
      */
-   
+
     // Get the lightshow subsystem
     m_lightshow = Lightshow.getInstance();
 
@@ -85,12 +87,14 @@ public class RobotContainer {
     // Get the NavX subsystem
     m_navXSubsystem = NavXSubsystem.getInstance();
 
-    m_climbUpLeft = new ClimbUpLeft();
-    m_climbDownLeft = new ClimbDownLeft();
-    m_climbUpRight = new ClimbUpRight();
-    m_climbDownRight = new ClimbDownRight();
-    m_climbUp = new ClimbUp();
-    m_climbDown = new ClimbDown();
+    if (kClimberEnabled) {
+      m_climbUpLeft = new ClimbUpLeft();
+      m_climbDownLeft = new ClimbDownLeft();
+      m_climbUpRight = new ClimbUpRight();
+      m_climbDownRight = new ClimbDownRight();
+      m_climbUp = new ClimbUp();
+      m_climbDown = new ClimbDown();
+    }
     /*
      * Configure the button bindings and commands
      */
@@ -99,8 +103,8 @@ public class RobotContainer {
     // Add commands to the autonomous command chooser
     chooser.setDefaultOption("Back Out Of Zone", new DriveTimed(m_tankDriveTrain, -0.75, 1.5));
     chooser.addOption("Rotate Left Approx 90", new TurnTimed(m_tankDriveTrain, 0.5, 0.95));
- // Put the chooser on the dashboard
-        SmartDashboard.putData("Auto mode", chooser);
+    // Put the chooser on the dashboard
+    SmartDashboard.putData("Auto mode", chooser);
   }
 
   /**
@@ -128,57 +132,59 @@ public class RobotContainer {
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
     m_boostDrive = new BoostDrive(m_tankDriveTrain,
-          () -> -m_driverController.getRawAxis(1),
-          () -> -m_driverController.getRawAxis(4),
-          () -> m_driverController.getRawAxis(3),
-          () -> m_driverController.getRawAxis(2));
+        () -> -m_driverController.getRawAxis(1),
+        () -> -m_driverController.getRawAxis(4),
+        () -> m_driverController.getRawAxis(3),
+        () -> m_driverController.getRawAxis(2));
 
     m_curveDrive = new CurveDrive(m_tankDriveTrain,
-          () -> -m_driverController.getRawAxis(1),
-          () -> -m_driverController.getRawAxis(4),
-          () -> m_driverController.getRawAxis(3),
-          () -> m_driverController.getRawAxis(2));
+        () -> -m_driverController.getRawAxis(1),
+        () -> -m_driverController.getRawAxis(4),
+        () -> m_driverController.getRawAxis(3),
+        () -> m_driverController.getRawAxis(2));
 
     setDriveType(kDefaultDriveType);
 
     new Trigger(m_driverController.back()).onTrue(Commands.runOnce(this::toggleDriveType));
 
-    new Trigger(m_driverController.y()).whileTrue(m_climbUpRight);
-    new Trigger(m_driverController.x()).whileTrue(m_climbUpLeft);
-    new Trigger(m_driverController.b()).whileTrue(m_climbDownRight);
-    new Trigger(m_driverController.a()).whileTrue(m_climbDownLeft);
-    new Trigger(m_driverController.povDown()).whileTrue(m_climbDown);
-    new Trigger(m_driverController.povUp()).whileTrue(m_climbUp);
+    if (kClimberEnabled) {
+      new Trigger(m_driverController.y()).whileTrue(m_climbUpRight);
+      new Trigger(m_driverController.x()).whileTrue(m_climbUpLeft);
+      new Trigger(m_driverController.b()).whileTrue(m_climbDownRight);
+      new Trigger(m_driverController.a()).whileTrue(m_climbDownLeft);
+      new Trigger(m_driverController.povDown()).whileTrue(m_climbDown);
+      new Trigger(m_driverController.povUp()).whileTrue(m_climbUp);
+    }
     // Assuming m_driverController is a Joystick or XboxController object
   }
 
-  public void toggleDriveType(){
-    if(m_tankDriveTrain.getDefaultCommand() != m_boostDrive){
+  public void toggleDriveType() {
+    if (m_tankDriveTrain.getDefaultCommand() != m_boostDrive) {
       setDriveType(kBoostDrive);
-    }
-    else{
+    } else {
       setDriveType(kCurveDrive);
     }
   }
 
-  public void setDriveType(String type){
-    System.out.printf("Setting drive type to: %s",type);
+  public void setDriveType(String type) {
+    System.out.printf("Setting drive type to: %s", type);
     if (type == kArcadeDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeBlueRotate);;
-    }
-    else if (type == kBoostDrive) {
+      m_lightshow.setMode(Lightshow.kModeBlueRotate);
+      ;
+    } else if (type == kBoostDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeBlueRotate);;
-    }
-    else if (type == kCurveDrive) {
+      m_lightshow.setMode(Lightshow.kModeBlueRotate);
+      ;
+    } else if (type == kCurveDrive) {
       m_tankDriveTrain.setDefaultCommand(m_curveDrive);
-      m_lightshow.setMode(Lightshow.kModeBrownRotate);;
-    }
-    else{
+      m_lightshow.setMode(Lightshow.kModeBrownRotate);
+      ;
+    } else {
       System.out.println("*** WARNING *** Unrecognized drive type. Setting to default.");
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeError);;
+      m_lightshow.setMode(Lightshow.kModeError);
+      ;
     }
     m_tankDriveTrain.getDefaultCommand().schedule();
 
