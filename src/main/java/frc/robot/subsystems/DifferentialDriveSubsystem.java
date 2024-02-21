@@ -113,6 +113,9 @@ public class DifferentialDriveSubsystem extends SubsystemBase {
         rightMotorGroup = new MotorControllerGroup(rightSpark, rightTalon1, rightTalon2);
         addChild("Right Motor Group", rightMotorGroup);
 
+        SystemMonitor.getInstance().registerMotor("LeftDrive", leftSpark);
+        SystemMonitor.getInstance().registerMotor("RightDrive", rightSpark);
+        
         differentialDriveControl = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
         addChild("Differential Drive 1", differentialDriveControl);
 
