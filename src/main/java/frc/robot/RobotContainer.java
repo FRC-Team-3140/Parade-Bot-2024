@@ -15,6 +15,7 @@ import frc.robot.commands.ClimbUpRight;
 import frc.robot.commands.CurveDrive;
 import frc.robot.commands.autos.DriveTimed;
 import frc.robot.commands.autos.TurnTimed;
+import frc.robot.commands.lightcommands.SolidColor;
 import frc.robot.subsystems.Lightshow;
 import frc.robot.subsystems.NavXSubsystem;
 import frc.robot.subsystems.DifferentialDriveSubsystem;
@@ -132,8 +133,8 @@ public class RobotContainer {
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
     m_boostDrive = new BoostDrive(m_tankDriveTrain,
-        () -> -m_driverController.getRawAxis(1),
-        () -> -m_driverController.getRawAxis(4),
+        () -> -m_driverController.getRawAxis(1), // Left Stick Y
+        () -> -m_driverController.getRawAxis(4), // Right Stick X
         () -> m_driverController.getRawAxis(3),
         () -> m_driverController.getRawAxis(2));
 
@@ -170,23 +171,24 @@ public class RobotContainer {
     System.out.printf("Setting drive type to: %s", type);
     if (type == kArcadeDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeBlueRotate);
+      m_lightshow.setDefaultCommand(new SolidColor(Lightshow.kBlue, 0.0));
       ;
     } else if (type == kBoostDrive) {
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeBlueRotate);
+      m_lightshow.setDefaultCommand(new SolidColor(Lightshow.kBlue, 0.0));
       ;
     } else if (type == kCurveDrive) {
       m_tankDriveTrain.setDefaultCommand(m_curveDrive);
-      m_lightshow.setMode(Lightshow.kModeBrownRotate);
+      m_lightshow.setDefaultCommand(new SolidColor(Lightshow.kOrange, 0.0));
       ;
     } else {
       System.out.println("*** WARNING *** Unrecognized drive type. Setting to default.");
       m_tankDriveTrain.setDefaultCommand(m_boostDrive);
-      m_lightshow.setMode(Lightshow.kModeError);
+      m_lightshow.setDefaultCommand(new SolidColor(Lightshow.kRed, 0.0));
       ;
     }
     m_tankDriveTrain.getDefaultCommand().schedule();
+    m_lightshow.getDefaultCommand().schedule();
 
   }
 

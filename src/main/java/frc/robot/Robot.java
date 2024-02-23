@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.lightcommands.SolidColor;
 import frc.robot.subsystems.Lightshow;
 
 /**
@@ -21,8 +22,6 @@ import frc.robot.subsystems.Lightshow;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private Lightshow lightshow;
-
   private RobotContainer m_robotContainer;
 
   /**
@@ -36,9 +35,7 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
-    lightshow = Lightshow.getInstance();
-    lightshow.setMode(Lightshow.kModeCaution);
+    new SolidColor(Lightshow.kYellow, 0.0).schedule();
   }
 
   /**
@@ -66,12 +63,12 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    lightshow.setMode(Lightshow.kModeCaution);
+
+    new SolidColor(Lightshow.kYellow, 0.0).schedule();
   }
 
   @Override
   public void disabledPeriodic() {
-
   }
 
   /**
@@ -87,7 +84,9 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
-    lightshow.setMode(Lightshow.kModeBlueRotate);
+    Lightshow lightshow = Lightshow.getInstance();
+    lightshow.setDefaultCommand(new SolidColor(Lightshow.kLightRed, 0.0));
+    lightshow.getDefaultCommand().schedule();
   }
 
   /** This function is called periodically during autonomous. */
@@ -101,11 +100,13 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    lightshow.setMode(Lightshow.kModeAdmirals);
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    Lightshow lightshow = Lightshow.getInstance();
+    lightshow.setDefaultCommand(new SolidColor(Lightshow.kBlue, 0.0));
+    lightshow.getDefaultCommand().schedule();
   }
 
   /** This function is called periodically during operator control. */
@@ -118,7 +119,6 @@ public class Robot extends TimedRobot {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    lightshow.setMode(Lightshow.kModeRedRotate);
   }
 
   /** This function is called periodically during test mode. */
@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
-    lightshow.setMode(Lightshow.kModeRedRotate);
+
   }
 
   /** This function is called periodically whilst in simulation. */
