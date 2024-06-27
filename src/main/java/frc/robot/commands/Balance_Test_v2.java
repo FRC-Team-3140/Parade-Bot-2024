@@ -5,10 +5,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 
-public class Balance_Test_v2 extends CommandBase {
+public class Balance_Test_v2 extends Command {
   private final DriveTrain m_DriveTrain;
   
   private final double max_speed = 0.55;

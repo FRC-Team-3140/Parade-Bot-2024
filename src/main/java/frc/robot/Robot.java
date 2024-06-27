@@ -14,9 +14,6 @@ package frc.robot;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 import edu.wpi.first.hal.HAL;
@@ -74,18 +71,6 @@ public class Robot extends TimedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
 
-        // DataNAVX.getEntry("Accelerometer: x").setNumber(NAVX.getRawAccelX());
-        // DataNAVX.getEntry("Accelerometer: y").setNumber(NAVX.getRawAccelY());
-        // DataNAVX.getEntry("Accelerometer: z").setNumber(NAVX.getRawAccelZ());
-        // DataNAVX.getEntry("Displacement: x").setNumber(NAVX.getDisplacementX());
-        // DataNAVX.getEntry("Displacement: y").setNumber(NAVX.getDisplacementY());
-        // DataNAVX.getEntry("Displacement: z").setNumber(NAVX.getDisplacementZ());
-        // DataNAVX.getEntry("Gyro: x").setNumber(NAVX.getRawGyroX());
-        // DataNAVX.getEntry("Gyro: y").setNumber(NAVX.getRawGyroY());
-        // DataNAVX.getEntry("Gyro: z").setNumber(NAVX.getRawGyroZ());
-        // DataNAVX.getEntry("Velocity: x").setNumber(NAVX.getVelocityX());
-        // DataNAVX.getEntry("Velocity: y").setNumber(NAVX.getVelocityY());
-        // DataNAVX.getEntry("Velocity: z").setNumber(NAVX.getVelocityZ());
 
     }
 
