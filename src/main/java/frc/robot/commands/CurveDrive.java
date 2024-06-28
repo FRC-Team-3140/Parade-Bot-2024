@@ -4,12 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.TankDriveTrain;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DriveTrain;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import java.util.function.Supplier;
 
-public class CurveDrive extends Command {
-  private final TankDriveTrain m_drivetrain;
+public class CurveDrive extends CommandBase {
+  private final DriveTrain m_drivetrain;
   private final Supplier<Double> m_xaxisSpeedSupplier;
   private final Supplier<Double> m_zaxisRotateSupplier;
   private final Supplier<Double> m_boostAxisSupplier;
@@ -31,7 +31,7 @@ public class CurveDrive extends Command {
    * @param zaxisRotateSupplier Lambda supplier of rotational speed
    */
   public CurveDrive(
-      TankDriveTrain drivetrain,
+      DriveTrain drivetrain,
       Supplier<Double> xaxisSpeedSupplier,
       Supplier<Double> zaxisRotateSupplier,
       Supplier<Double> boostAxisSupplier,
@@ -51,11 +51,16 @@ public class CurveDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //double fast = 0.5+0.5*m_boostAxisSupplier.get();
+    //double slow = 0.5+0.5*m_slowAxisSupplier.get();
     double fast = Math.min(Math.max(m_boostAxisSupplier.get(),0.0),1.0);
     double slow = Math.min(Math.max(m_slowAxisSupplier.get(),0.0),1.0);
     double tfast = Math.min(Math.max(m_boostAxisSupplier.get(),0.0),1.0);
     double tslow = Math.min(Math.max(m_slowAxisSupplier.get(),0.0),1.0);
     double boost = speed_normal + (speed_max-speed_normal)*fast - (speed_normal-speed_min)*slow;
+    double tboost = turn_norm + (turn_max-turn_norm)*tfast - (turn_norm-turn_min)*tslow;
+
+    //System.out.printf("F: %.3f   S: %.3f   B: %.3f\n",fast,slow,boost);
     
     m_drivetrain.curveDrive(boost*m_xaxisSpeedSupplier.get(),.45*m_zaxisRotateSupplier.get());
   }

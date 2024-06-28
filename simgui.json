@@ -1,0 +1,33 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Talon SRX[2]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon SRX[4]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Mode": "String Chooser",
+      "/SmartDashboard/Autonomous Command": "Command",
+      "/SmartDashboard/DriveTrain": "Subsystem",
+      "/SmartDashboard/Light Balance": "Command",
+      "/SmartDashboard/Light Cone": "Command",
+      "/SmartDashboard/Light Cube": "Command",
+      "/SmartDashboard/Lightshow": "Subsystem",
+      "/SmartDashboard/TeleOp Command": "Command",
+      "/SmartDashboard/Test Balance": "Command",
+      "/SmartDashboard/Test Forward": "Command",
+      "/SmartDashboard/Test Reverse": "Command",
+      "/SmartDashboard/Test Turn": "Command"
+    }
+  }
+}

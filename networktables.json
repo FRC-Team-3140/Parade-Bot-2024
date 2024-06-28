@@ -1,0 +1,18 @@
+[
+  {
+    "name": "/SmartDashboard/DriveTrain/angle_filter_time_const",
+    "type": "double",
+    "value": 0.2,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/SmartDashboard/DriveTrain/angle_filter_period_const",
+    "type": "double",
+    "value": 0.02,
+    "properties": {
+      "persistent": true
+    }
+  }
+]

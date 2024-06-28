@@ -1,0 +1,66 @@
+[
+  {
+    "name": "/SmartDashboard/DriveTrain/angle_filter_time_const",
+    "type": "double",
+    "value": 0.2,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/SmartDashboard/DriveTrain/angle_filter_period_const",
+    "type": "double",
+    "value": 0.02,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Test/World",
+    "type": "double",
+    "value": 8.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Test/Bool",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Test/str",
+    "type": "string",
+    "value": "Test This one",
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Telemetry/Telemetry IP Address",
+    "type": "string",
+    "value": "127.0.0.1",
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Telemetry/Telemetry UDP Port",
+    "type": "int",
+    "value": 13123,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Comms3140/Settings/Telemetry/Telemetry UDP Enabled",
+    "type": "boolean",
+    "value": true,
+    "properties": {
+      "persistent": true
+    }
+  }
+]

@@ -4,12 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.TankDriveTrain;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DriveTrain;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import java.util.function.Supplier;
 
-public class BoostDrive extends Command {
-  private final TankDriveTrain m_drivetrain;
+public class BoostDrive extends CommandBase {
+  private final DriveTrain m_drivetrain;
   private final Supplier<Double> m_xaxisSpeedSupplier;
   private final Supplier<Double> m_zaxisRotateSupplier;
   private final Supplier<Double> m_boostAxisSupplier;
@@ -31,7 +31,7 @@ public class BoostDrive extends Command {
    * @param zaxisRotateSupplier Lambda supplier of rotational speed
    */
   public BoostDrive(
-      TankDriveTrain drivetrain,
+      DriveTrain drivetrain,
       Supplier<Double> xaxisSpeedSupplier,
       Supplier<Double> zaxisRotateSupplier,
       Supplier<Double> boostAxisSupplier,
