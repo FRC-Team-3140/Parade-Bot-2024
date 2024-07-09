@@ -4,7 +4,7 @@ package frc.robot.commands;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrainOld;
 
 
 /**
@@ -12,7 +12,7 @@ import frc.robot.subsystems.DriveTrain;
  */
 public class ClimbRamp extends Command {
 
-    private final DriveTrain m_driveTrain;
+    private final DriveTrainOld m_driveTrain;
 
 
     private double m_speed = 0.60;
@@ -20,7 +20,7 @@ public class ClimbRamp extends Command {
     private NetworkTable m_navx_table;
 
 
-    public ClimbRamp(DriveTrain subsystem) {
+    public ClimbRamp(DriveTrainOld subsystem) {
 
         m_driveTrain = subsystem;
         addRequirements(m_driveTrain);

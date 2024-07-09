@@ -3,14 +3,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrainOld;
 
 /**
  *
  */
 public class ParkingBrake extends Command {
 
-    private final DriveTrain m_driveTrain;
+    private final DriveTrainOld m_driveTrain;
 
     private double m_stop_position = 0.0;
     private double m_max_speed = 0.7;
@@ -18,7 +18,7 @@ public class ParkingBrake extends Command {
     // Tune this until the robot stops nicely while on the incline
     PIDController pid = new PIDController(8.00, 0.00, 0.00);
 
-    public ParkingBrake(DriveTrain subsystem) {
+    public ParkingBrake(DriveTrainOld subsystem) {
 
         m_driveTrain = subsystem;
         addRequirements(m_driveTrain);

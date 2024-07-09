@@ -5,11 +5,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrainOld;
 
 public class BalanceAndEngage extends Command {
 
-    private final DriveTrain m_driveTrain;
+    private final DriveTrainOld m_driveTrain;
 
     private NetworkTable m_navx_table;
 
@@ -24,7 +24,7 @@ public class BalanceAndEngage extends Command {
     // Tune this until the robot stops nicely while on the incline
     PIDController pid = new PIDController(8.00, 0.00, 0.00);
 
-    public BalanceAndEngage(DriveTrain subsystem) {
+    public BalanceAndEngage(DriveTrainOld subsystem) {
 
         m_driveTrain = subsystem;
         addRequirements(m_driveTrain);

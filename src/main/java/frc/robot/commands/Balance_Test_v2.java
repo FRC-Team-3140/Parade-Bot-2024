@@ -6,17 +6,17 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrainOld;
 
 public class Balance_Test_v2 extends Command {
-  private final DriveTrain m_DriveTrain;
+  private final DriveTrainOld m_DriveTrain;
   
   private final double max_speed = 0.55;
 
   private PIDController pidController = new PIDController(max_speed / 10, 0.02, 0.04);
 
   /** Creates a new Balance_Test_v2. */
-  public Balance_Test_v2(DriveTrain subsystem) {
+  public Balance_Test_v2(DriveTrainOld subsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_DriveTrain = subsystem;
   }

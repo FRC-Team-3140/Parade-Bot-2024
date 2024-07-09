@@ -17,7 +17,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrainOld;
 
 
 /**
@@ -25,7 +25,7 @@ import frc.robot.subsystems.DriveTrain;
  */
 public class PongDrive extends Command {
 
-    private final DriveTrain m_driveTrain;
+    private final DriveTrainOld m_driveTrain;
 
     double m_angle = 0.0;
     double m_max_speed = 1.0;
@@ -41,7 +41,7 @@ public class PongDrive extends Command {
 
     Supplier<Double> m_control_axis;
 
-    public PongDrive(DriveTrain subsystem, double angle, Supplier<Double> xaxisSpeedSupplier) {
+    public PongDrive(DriveTrainOld subsystem, double angle, Supplier<Double> xaxisSpeedSupplier) {
 
 
         m_angle = angle;

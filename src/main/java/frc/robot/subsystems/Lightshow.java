@@ -36,7 +36,7 @@ public class Lightshow extends SubsystemBase {
     NetworkTable Lightshow_table;
     AddressableLEDBuffer led_data;
     int mode = 0;
-    DriveTrain drivetrain;
+    DriveTrainOld drivetrain;
     private int light_count = 54;
     private double time_offset = 0.0;
     private int frame_id = 0;
@@ -84,7 +84,7 @@ public class Lightshow extends SubsystemBase {
 
     }
 
-    public void setDriveTrain(DriveTrain tmp) {
+    public void setDriveTrain(DriveTrainOld tmp) {
         drivetrain = tmp;
     }
 
