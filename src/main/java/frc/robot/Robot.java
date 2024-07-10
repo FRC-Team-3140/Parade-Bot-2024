@@ -15,7 +15,6 @@ package frc.robot;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 
-
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,7 +33,6 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -46,7 +44,6 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
-
 
     }
 
@@ -70,7 +67,6 @@ public class Robot extends TimedRobot {
         // robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
-
 
     }
 
@@ -130,7 +126,6 @@ public class Robot extends TimedRobot {
 
         m_robotContainer.updateNavX();
     }
-
 
     @Override
     public void testInit() {

@@ -8,25 +8,34 @@
 // update. Deleting the comments indicating the section will prevent
 // it from being updated in the future.
 
-
 package frc.robot;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants.  This class should not be used for any other purpose.  All constants should be
- * declared globally (i.e. public static).  Do not put anything functional in this class.
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants
+ * should be
+ * declared globally (i.e. public static). Do not put anything functional in
+ * this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
-   /**
-    * public static final class DriveConstants {
-    *   public static final int kLeftMotor1Port = 0;
-    *   public static final int kLeftMotor2Port = 1;
-    *   public static final int kRightMotor1Port = 2;
-    *   public static final int kRightMotor2Port = 3; 
-    * }
-    */ 
-}
+    /**
+     * public static final class DriveConstants {
+     * public static final int kLeftMotor1Port = 0;
+     * public static final int kLeftMotor2Port = 1;
+     * public static final int kRightMotor1Port = 2;
+     * public static final int kRightMotor2Port = 3;
+     * }
+     */
 
+    // The following constants are percentages
+    public final static double movSpeedDefault = 0.65;
+    public final static double movBoostMagnitude = 0.35;
+    public final static double rotSpeedDefault = 0.8;
+    public final static double rotBoostMagnitude = 0.2;
+}
