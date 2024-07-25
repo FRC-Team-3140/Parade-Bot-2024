@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -87,9 +86,6 @@ public class DriveTrain extends SubsystemBase {
     leftSparkMaxFollower.restoreFactoryDefaults(true);
     rightSparkMaxFollower.restoreFactoryDefaults(true);
 
-    leftSparkMaxFollower.burnFlash();
-    rightSparkMaxFollower.burnFlash();
-
     // Talons
     leftTalonLeader.configFactoryDefault();
     leftTalonFollower.configFactoryDefault();
@@ -107,7 +103,7 @@ public class DriveTrain extends SubsystemBase {
     leftTalonLeader.setInverted(false);
     leftTalonFollower.follow(leftTalonLeader);
 
-    // set to percent output somewhere to potentially fix issue. 
+    // set to percent output somewhere to potentially fix issue.
     leftSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, leftTalonLeader.getDeviceID());
 
     // The right configuration
@@ -120,6 +116,15 @@ public class DriveTrain extends SubsystemBase {
     rightTalonFollower.follow(rightTalonLeader);
 
     rightSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, rightTalonLeader.getDeviceID());
+  }
+
+  private void setSupplyCurrentLimit() {
+    SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
+    current_limit.currentLimit = 30;
+    leftTalonLeader.configSupplyCurrentLimit(current_limit);
+    leftTalonFollower.configSupplyCurrentLimit(current_limit);
+    rightTalonLeader.configSupplyCurrentLimit(current_limit);
+    rightTalonFollower.configSupplyCurrentLimit(current_limit);
   }
 
   /** Creates a new DriveTrain. */
@@ -142,12 +147,8 @@ public class DriveTrain extends SubsystemBase {
     differentialDrive1.setMaxOutput(1.0);
 
     // Set the current limits
-    SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
-    current_limit.currentLimit = 30;
-    leftTalonLeader.configSupplyCurrentLimit(current_limit);
-    leftTalonFollower.configSupplyCurrentLimit(current_limit);
-    rightTalonLeader.configSupplyCurrentLimit(current_limit);
-    rightTalonFollower.configSupplyCurrentLimit(current_limit);
+
+    setSupplyCurrentLimit();
 
     // Set up the encoders
     leftEncoder = leftSparkMaxFollower.getEncoder();
