@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -83,14 +84,23 @@ public class DriveTrain extends SubsystemBase {
 
   private void factoryReset() {
     // SparkMaxes
-    leftSparkMaxFollower.restoreFactoryDefaults(true);
-    rightSparkMaxFollower.restoreFactoryDefaults(true);
+    leftSparkMaxFollower.restoreFactoryDefaults();
+    rightSparkMaxFollower.restoreFactoryDefaults();
 
     // Talons
     leftTalonLeader.configFactoryDefault();
     leftTalonFollower.configFactoryDefault();
     rightTalonLeader.configFactoryDefault();
     rightTalonFollower.configFactoryDefault();
+  }
+
+  private void setSupplyCurrentLimit() {
+    SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
+    current_limit.currentLimit = 30;
+    leftTalonLeader.configSupplyCurrentLimit(current_limit);
+    leftTalonFollower.configSupplyCurrentLimit(current_limit);
+    rightTalonLeader.configSupplyCurrentLimit(current_limit);
+    rightTalonFollower.configSupplyCurrentLimit(current_limit);
   }
 
   private void setIdleModes() {
@@ -101,30 +111,29 @@ public class DriveTrain extends SubsystemBase {
 
     leftTalonLeader.configOpenloopRamp(0.2);
     leftTalonLeader.setInverted(false);
+
+    leftTalonLeader.set(ControlMode.PercentOutput, 0);
+
     leftTalonFollower.follow(leftTalonLeader);
 
     // set to percent output somewhere to potentially fix issue.
     leftSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, leftTalonLeader.getDeviceID());
 
     // The right configuration
-    rightSparkMaxFollower.setIdleMode(IdleMode.kCoast);
+    rightSparkMaxFollower.setIdleMode(kIdleMode);
     rightSparkMaxFollower.setInverted(false);
     rightSparkMaxFollower.burnFlash();
 
     rightTalonLeader.configOpenloopRamp(0.2);
     rightTalonLeader.setInverted(true);
+
+    rightTalonLeader.set(ControlMode.PercentOutput, 0);
+
     rightTalonFollower.follow(rightTalonLeader);
 
     rightSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, rightTalonLeader.getDeviceID());
-  }
 
-  private void setSupplyCurrentLimit() {
-    SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
-    current_limit.currentLimit = 30;
-    leftTalonLeader.configSupplyCurrentLimit(current_limit);
-    leftTalonFollower.configSupplyCurrentLimit(current_limit);
-    rightTalonLeader.configSupplyCurrentLimit(current_limit);
-    rightTalonFollower.configSupplyCurrentLimit(current_limit);
+    // System.out.println("Left Talon Leader: " + leftTalonLeader.getDeviceID() + " " + leftTalonLeader.getBaseID());
   }
 
   /** Creates a new DriveTrain. */
@@ -190,17 +199,20 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double slowMultiplier = driverController.getLeftTriggerAxis();
-    double fastMultiplier = driverController.getRightTriggerAxis();
-    movSpeed = Constants.movSpeedDefault + (Constants.movBoostMagnitude * fastMultiplier)
-        - (Constants.movBoostMagnitude * slowMultiplier);
-    rotSpeed = Constants.rotSpeedDefault + (Constants.rotBoostMagnitude * fastMultiplier)
-        - (Constants.rotBoostMagnitude * slowMultiplier);
-    arcadeDrive(driverController.getLeftY(), driverController.getRightX());
+    // double slowMultiplier = driverController.getLeftTriggerAxis();
+    // double fastMultiplier = driverController.getRightTriggerAxis();
+    // movSpeed = Constants.movSpeedDefault + (Constants.movBoostMagnitude * fastMultiplier)
+    //     - (Constants.movBoostMagnitude * slowMultiplier);
+    // rotSpeed = Constants.rotSpeedDefault + (Constants.rotBoostMagnitude * fastMultiplier)
+    //     - (Constants.rotBoostMagnitude * slowMultiplier);
+    // arcadeDrive(driverController.getLeftY(), driverController.getRightX());
+
+    arcadeDrive(0.5, 0.0);
   }
 
   public void arcadeDrive(double mov, double rot) {
     differentialDrive1.arcadeDrive(movSpeed * mov, rotSpeed * rot, true);
+    // differentialDrive1.arcadeDrive(mov, rot, true);
   }
 
   public void arcadeDrive(double mov, double rot, boolean square) {
