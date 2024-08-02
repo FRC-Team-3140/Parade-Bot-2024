@@ -29,31 +29,31 @@ public class DriveTrain extends SubsystemBase {
 
   // The left motor group
   // leftTalonLeader
-  private WPI_TalonSRX leftTalonLeader;
+  private WPI_TalonSRX leftTalonFollower1;
 
   // leftTalonFollower
-  private WPI_TalonSRX leftTalonFollower;
+  private WPI_TalonSRX leftTalonFollower2;
 
   // leftSparkMaxFollower
-  private CANSparkMax leftSparkMaxFollower;
+  private CANSparkMax leftSparkMaxLeader;
 
   // The right motor group
   // rightTalonLeader
-  private WPI_TalonSRX rightTalonLeader;
+  private WPI_TalonSRX rightTalonFollower1;
 
   private XboxController driverController;
 
   // rightSparkMaxFollower
-  private CANSparkMax rightSparkMaxFollower;
+  private CANSparkMax rightSparkMaxLeader;
 
   // rightTalonFollower
-  private WPI_TalonSRX rightTalonFollower;
+  private WPI_TalonSRX rightTalonFollower2;
 
   // The robot's drive controller
   private DifferentialDrive differentialDrive1;
 
-  private double movSpeed = Constants.movSpeedDefault;
-  private double rotSpeed = Constants.rotSpeedDefault;
+  private double movSpeed;
+  private double rotSpeed;
 
   // double accel_angle = 0.0;
   // double angle_filtered = 0.0;
@@ -84,72 +84,63 @@ public class DriveTrain extends SubsystemBase {
 
   private void factoryReset() {
     // SparkMaxes
-    leftSparkMaxFollower.restoreFactoryDefaults();
-    rightSparkMaxFollower.restoreFactoryDefaults();
+    leftSparkMaxLeader.restoreFactoryDefaults();
+    rightSparkMaxLeader.restoreFactoryDefaults();
 
     // Talons
-    leftTalonLeader.configFactoryDefault();
-    leftTalonFollower.configFactoryDefault();
-    rightTalonLeader.configFactoryDefault();
-    rightTalonFollower.configFactoryDefault();
+    leftTalonFollower1.configFactoryDefault();
+    leftTalonFollower2.configFactoryDefault();
+    rightTalonFollower1.configFactoryDefault();
+    rightTalonFollower2.configFactoryDefault();
   }
 
   private void setSupplyCurrentLimit() {
     SupplyCurrentLimitConfiguration current_limit = new SupplyCurrentLimitConfiguration();
     current_limit.currentLimit = 30;
-    leftTalonLeader.configSupplyCurrentLimit(current_limit);
-    leftTalonFollower.configSupplyCurrentLimit(current_limit);
-    rightTalonLeader.configSupplyCurrentLimit(current_limit);
-    rightTalonFollower.configSupplyCurrentLimit(current_limit);
+    leftTalonFollower1.configSupplyCurrentLimit(current_limit);
+    leftTalonFollower2.configSupplyCurrentLimit(current_limit);
+    rightTalonFollower1.configSupplyCurrentLimit(current_limit);
+    rightTalonFollower2.configSupplyCurrentLimit(current_limit);
   }
 
   private void setIdleModes() {
     // The left configuration
-    leftSparkMaxFollower.setIdleMode(kIdleMode);
-    leftSparkMaxFollower.setInverted(true);
-    leftSparkMaxFollower.burnFlash();
+    leftSparkMaxLeader.setIdleMode(kIdleMode);
+    leftSparkMaxLeader.setInverted(false);
+    leftSparkMaxLeader.burnFlash();
 
-    leftTalonLeader.configOpenloopRamp(0.2);
-    leftTalonLeader.setInverted(false);
+    leftTalonFollower1.configOpenloopRamp(0.2);
+    leftTalonFollower1.setInverted(true);
 
-    leftTalonLeader.set(ControlMode.PercentOutput, 0);
-
-    leftTalonFollower.follow(leftTalonLeader);
-
-    // set to percent output somewhere to potentially fix issue.
-    leftSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, leftTalonLeader.getDeviceID());
+    leftTalonFollower2.configOpenloopRamp(0.2);
+    leftTalonFollower2.setInverted(true);
 
     // The right configuration
-    rightSparkMaxFollower.setIdleMode(kIdleMode);
-    rightSparkMaxFollower.setInverted(false);
-    rightSparkMaxFollower.burnFlash();
+    rightSparkMaxLeader.setIdleMode(kIdleMode);
+    rightSparkMaxLeader.setInverted(true);
+    rightSparkMaxLeader.burnFlash();
 
-    rightTalonLeader.configOpenloopRamp(0.2);
-    rightTalonLeader.setInverted(true);
+    rightTalonFollower1.configOpenloopRamp(0.2);
+    rightTalonFollower1.setInverted(false);
 
-    rightTalonLeader.set(ControlMode.PercentOutput, 0);
-
-    rightTalonFollower.follow(rightTalonLeader);
-
-    rightSparkMaxFollower.follow(CANSparkMax.ExternalFollower.kFollowerPhoenix, rightTalonLeader.getDeviceID());
-
-    // System.out.println("Left Talon Leader: " + leftTalonLeader.getDeviceID() + " " + leftTalonLeader.getBaseID());
+    rightTalonFollower2.configOpenloopRamp(0.2);
+    rightTalonFollower2.setInverted(false);
   }
 
   /** Creates a new DriveTrain. */
   private DriveTrain() {
-    leftSparkMaxFollower = new CANSparkMax(9, MotorType.kBrushless);
-    leftTalonLeader = new WPI_TalonSRX(4);
-    leftTalonFollower = new WPI_TalonSRX(6);
+    leftSparkMaxLeader = new CANSparkMax(9, MotorType.kBrushless);
+    leftTalonFollower1 = new WPI_TalonSRX(4);
+    leftTalonFollower2 = new WPI_TalonSRX(6);
 
-    rightSparkMaxFollower = new CANSparkMax(8, MotorType.kBrushless);
-    rightTalonLeader = new WPI_TalonSRX(5);
-    rightTalonFollower = new WPI_TalonSRX(7);
+    rightSparkMaxLeader = new CANSparkMax(8, MotorType.kBrushless);
+    rightTalonFollower1 = new WPI_TalonSRX(5);
+    rightTalonFollower2 = new WPI_TalonSRX(7);
 
     factoryReset();
     setIdleModes();
 
-    differentialDrive1 = new DifferentialDrive(leftTalonLeader, rightTalonLeader);
+    differentialDrive1 = new DifferentialDrive(leftSparkMaxLeader, rightSparkMaxLeader);
 
     differentialDrive1.setSafetyEnabled(true);
     differentialDrive1.setExpiration(0.1);
@@ -160,8 +151,8 @@ public class DriveTrain extends SubsystemBase {
     setSupplyCurrentLimit();
 
     // Set up the encoders
-    leftEncoder = leftSparkMaxFollower.getEncoder();
-    rightEncoder = rightSparkMaxFollower.getEncoder();
+    leftEncoder = leftSparkMaxLeader.getEncoder();
+    rightEncoder = rightSparkMaxLeader.getEncoder();
 
     // set the encorder speed conversion factor from native units to meters per
     // second.
@@ -199,15 +190,20 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // double slowMultiplier = driverController.getLeftTriggerAxis();
-    // double fastMultiplier = driverController.getRightTriggerAxis();
-    // movSpeed = Constants.movSpeedDefault + (Constants.movBoostMagnitude * fastMultiplier)
-    //     - (Constants.movBoostMagnitude * slowMultiplier);
-    // rotSpeed = Constants.rotSpeedDefault + (Constants.rotBoostMagnitude * fastMultiplier)
-    //     - (Constants.rotBoostMagnitude * slowMultiplier);
-    // arcadeDrive(driverController.getLeftY(), driverController.getRightX());
+    // Talon Follower Code
+    leftTalonFollower1.set(ControlMode.PercentOutput, leftSparkMaxLeader.get());
+    leftTalonFollower2.set(ControlMode.PercentOutput, leftSparkMaxLeader.get());
 
-    arcadeDrive(0.5, 0.0);
+    rightTalonFollower1.set(ControlMode.PercentOutput, rightSparkMaxLeader.get());
+    rightTalonFollower2.set(ControlMode.PercentOutput, rightSparkMaxLeader.get());
+
+    double slowMultiplier = driverController.getLeftTriggerAxis();
+    double fastMultiplier = driverController.getRightTriggerAxis();
+    movSpeed = Constants.movSpeedDefault + (Constants.movBoostMagnitude * fastMultiplier)
+        - (Constants.movBoostMagnitude * slowMultiplier);
+    rotSpeed = Constants.rotSpeedDefault + (Constants.rotBoostMagnitude * fastMultiplier)
+        - (Constants.rotBoostMagnitude * slowMultiplier);
+    arcadeDrive(driverController.getLeftY(), driverController.getRightX());
   }
 
   public void arcadeDrive(double mov, double rot) {
